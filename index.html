@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>質感圖片裁切工具 | Premium Image Cropper</title>
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg"></div>
+    <div class="container">
+        <header>
+            <h1>Image Cropper</h1>
+            <p>快速、精準的瀏覽器圖片裁切工具</p>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <div id="upload-section" class="card active">
+                <div class="upload-area" id="drop-zone">
+                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <h3>拖曳圖片至此或點擊上傳</h3>
+                    <p>支援 JPG, PNG, WebP 格式</p>
+                    <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" hidden>
+                    <button class="btn primary" onclick="document.getElementById('file-input').click()">選擇檔案</button>
+                </div>
+            </div>
+
+            <!-- Editor Section -->
+            <div id="editor-section" class="card hidden">
+                <div class="editor-layout">
+                    <!-- Image Cropper Container -->
+                    <div class="cropper-container">
+                        <img id="image-to-crop" src="" alt="Picture">
+                    </div>
+
+                    <!-- Sidebar Controls -->
+                    <div class="controls-sidebar">
+                        <h3>裁切設定</h3>
+                        
+                        <div class="control-group">
+                            <label>目標輸出尺寸 (像素)</label>
+                            <div class="size-inputs" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="number" id="input-width" class="input-field" value="1048" placeholder="寬度">
+                                <span style="color: var(--text-secondary);">x</span>
+                                <input type="number" id="input-height" class="input-field" value="589" placeholder="高度">
+                            </div>
+                            <button id="apply-size-btn" class="btn secondary full-width" style="margin-top: 0.5rem; border-color: var(--primary-color); color: var(--text-primary);">✓ 鎖定上述尺寸與比例</button>
+                        </div>
+
+                        <div class="control-group">
+                            <label>網管常用版型 (點擊自動套用)</label>
+                            <div class="preset-buttons" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <button class="btn secondary preset-btn active" data-width="1048" data-height="589">樣式一橫幅 (1048x589像素)</button>
+                                <button class="btn secondary preset-btn" data-width="1700" data-height="700">樣式二橫幅 (1700x700像素)</button>
+                                <button class="btn secondary preset-btn" data-width="619" data-height="516">樣式三橫幅 (619x516像素)</button>
+                                <button class="btn secondary preset-btn" data-width="1905" data-height="695">樣式四橫幅 (1905x695像素)</button>
+                                <button class="btn secondary preset-btn" data-width="1905" data-height="595">樣式五橫幅 (1905x595像素)</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>快速比例 (不限制最終像素)</label>
+                            <div class="ratio-buttons">
+                                <button class="btn secondary ratio-btn" data-ratio="NaN">自由</button>
+                                <button class="btn secondary ratio-btn" data-ratio="1">1:1</button>
+                                <button class="btn secondary ratio-btn" data-ratio="1.3333333333333333">4:3</button>
+                                <button class="btn secondary ratio-btn" data-ratio="1.7777777777777777">16:9</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>旋轉</label>
+                            <div class="action-buttons">
+                                <button class="btn secondary action-btn" data-action="rotate-left" title="向左旋轉 90 度">↺ 左轉</button>
+                                <button class="btn secondary action-btn" data-action="rotate-right" title="向右旋轉 90 度">↻ 右轉</button>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>翻轉</label>
+                            <div class="action-buttons">
+                                <button class="btn secondary action-btn" data-action="flip-horizontal">↔ 水平</button>
+                                <button class="btn secondary action-btn" data-action="flip-vertical">↕ 垂直</button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <button class="btn secondary action-btn full-width" data-action="reset">⟲ 重設圖片</button>
+                        </div>
+
+                        <div class="export-group">
+                            <button id="download-btn" class="btn primary full-width">下載裁切結果</button>
+                            <button id="cancel-btn" class="btn text-btn full-width">重新上傳圖片</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Cropper.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

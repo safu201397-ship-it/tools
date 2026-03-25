@@ -1,0 +1,314 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --secondary-bg: rgba(255, 255, 255, 0.05);
+    --secondary-hover: rgba(255, 255, 255, 0.1);
+    --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --radius: 16px;
+    --transition: all 0.2s ease-in-out;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+    padding: 2rem;
+}
+
+/* Glassmorphism Background Pattern */
+.glass-bg {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 50% 50%, #3b82f633 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, #8b5cf633 0%, transparent 30%);
+    z-index: -1;
+    animation: drift 20s linear infinite alternate;
+}
+
+@keyframes drift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(5%, 5%); }
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    z-index: 1;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeInDown 0.6s ease-out;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(to right, #60a5fa, #c084fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.card.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: calc(var(--radius) - 4px);
+    padding: 4rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.upload-area:hover, .upload-area.dragover {
+    border-color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.upload-area svg {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.upload-area h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-area p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+/* Inputs */
+.input-field {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.65rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    outline: none;
+    transition: var(--transition);
+}
+.input-field:focus {
+    border-color: var(--primary-color);
+    background: rgba(0, 0, 0, 0.4);
+}
+.input-field::-webkit-inner-spin-button {
+    opacity: 1;
+}
+
+/* Buttons */
+.btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn.full-width {
+    width: 100%;
+}
+
+.btn.primary {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.btn.secondary {
+    background: var(--secondary-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn.secondary:hover {
+    background: var(--secondary-hover);
+}
+
+.btn.secondary.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn.text-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.75rem;
+}
+
+.btn.text-btn:hover {
+    color: white;
+}
+
+/* Editor Layout */
+.editor-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.cropper-container {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 400px;
+    max-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cropper-container img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+/* Controls Sidebar */
+.controls-sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.controls-sidebar h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.control-group label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.ratio-buttons, .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.export-group {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Override cropperjs internal colors for better dark mode */
+.cropper-view-box,
+.cropper-face {
+    outline-color: var(--primary-color) !important;
+}
+.cropper-point, .cropper-line {
+    background-color: var(--primary-color) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .editor-layout {
+        flex-direction: column;
+    }
+    
+    .controls-sidebar {
+        width: 100%;
+    }
+    
+    .cropper-container {
+        width: 100%;
+        min-height: 300px;
+    }
+    
+    body {
+        padding: 1rem;
+    }
+    
+    .card {
+        padding: 1.5rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
