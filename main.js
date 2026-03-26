@@ -52,8 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageToCrop = document.getElementById('image-to-crop');
     const downloadBtn = document.getElementById('download-btn');
     const cancelBtn = document.getElementById('cancel-btn');
-    const backToUploadBtn = document.getElementById('back-to-upload-btn');
-    const backToStyleBtn = document.getElementById('back-to-style-btn');
     
     const ratioBtns = document.querySelectorAll('.ratio-btn');
     const actionBtns = document.querySelectorAll('.action-btn');
@@ -63,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const dynamicPresets = document.getElementById('dynamic-presets');
     const styleCategoryBtns = document.querySelectorAll('.style-category-btn');
+    const currentStyleLabel = document.getElementById('current-style-label');
 
     let cropper = null;
     let isFixedSize = true; // Track if we strictly format output to the input fields
@@ -114,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             imageToCrop.src = e.target.result;
-            showStyleSelection();
+            showEditor();
         };
         reader.readAsDataURL(file);
     }
@@ -133,8 +132,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    function showEditor() {
+    function showUpload() {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        imageToCrop.src = '';
+        fileInput.value = ''; // clear input
+        
+        editorSection.classList.remove('active');
         styleSelectionSection.classList.remove('active');
+        setTimeout(() => {
+            uploadSection.classList.add('active');
+        }, 300);
+    }
+
+    function showEditor() {
+        uploadSection.classList.remove('active');
         
         // Render preset buttons based on activeStyleCategory
         dynamicPresets.innerHTML = '';
@@ -161,26 +175,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    function showUpload() {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-        imageToCrop.src = '';
-        fileInput.value = ''; // clear input
-        
-        editorSection.classList.remove('active');
-        styleSelectionSection.classList.remove('active');
-        setTimeout(() => {
-            uploadSection.classList.add('active');
-        }, 300);
-    }
-    
     // Wire up category buttons
     styleCategoryBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             activeStyleCategory = btn.dataset.style;
-            showEditor();
+            currentStyleLabel.textContent = btn.dataset.label;
+            showUpload();
         });
     });
 
@@ -322,8 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----- Actions -----
 
     cancelBtn.addEventListener('click', showUpload);
-    backToUploadBtn.addEventListener('click', showUpload);
-    backToStyleBtn.addEventListener('click', showStyleSelection);
+    if(document.getElementById('back-to-style-btn')){
+        document.getElementById('back-to-style-btn').addEventListener('click', showStyleSelection);
+    }
 
     downloadBtn.addEventListener('click', () => {
         if (!cropper) return;
@@ -363,6 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
+                    
+                    // Trigger return to upload screen automatically after 800ms
+                    setTimeout(showUpload, 800);
                 }, 100);
             }, 'image/webp', 0.95); // High Quality WebP
         }

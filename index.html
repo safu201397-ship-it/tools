@@ -1,51 +1,65 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>質感圖片裁切工具 | Premium Image Cropper</title>
+    <title>義守大學網頁管理圖片裁切工具 | Premium Image Cropper</title>
     <!-- Cropper.js CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="glass-bg"></div>
     <div class="container">
         <header>
-            <h1>Image Cropper</h1>
-            <p>快速、精準的瀏覽器圖片裁切工具</p>
+            <h1>義守大學網站管理平台圖片裁切工具</h1>
+            <p>網頁圖片裁切工具</p>
         </header>
 
         <main>
+            <!-- Style Selection Section (Initial Screen) -->
+            <div id="style-selection-section" class="card active">
+                <div style="text-align: center; padding: 2rem;">
+                    <h3 style="margin-bottom: 2rem; font-size: 1.5rem; color: var(--text-primary);">步驟一：請選擇您所管理的網站樣式
+                    </h3>
+                    <div class="style-category-buttons"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
+                        <button class="btn primary style-category-btn" data-style="style1" data-label="樣式一">樣式一</button>
+                        <button class="btn primary style-category-btn" data-style="style2" data-label="樣式二">樣式二</button>
+                        <button class="btn primary style-category-btn" data-style="style3" data-label="樣式三">樣式三</button>
+                        <button class="btn primary style-category-btn" data-style="style4" data-label="樣式四">樣式四</button>
+                        <button class="btn primary style-category-btn" data-style="style5" data-label="樣式五">樣式五</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Upload Section -->
-            <div id="upload-section" class="card active">
+            <div id="upload-section" class="card hidden">
+                <div
+                    style="text-align: center; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                    <h3 style="font-size: 1.1rem; color: var(--text-primary);">當前目標：<span id="current-style-label"
+                            style="color: var(--primary-color);">樣式一</span></h3>
+                    <button id="back-to-style-btn" class="btn secondary"
+                        style="padding: 0.5rem 1rem; font-size: 0.875rem;">⟲ 重新選擇樣式</button>
+                </div>
+
                 <div class="upload-area" id="drop-zone">
-                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: var(--text-primary);">步驟二：上傳原始圖片</h3>
+                    <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-bottom: 1rem; color: var(--primary-color);">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
                     </svg>
-                    <h3>拖曳圖片至此或點擊上傳</h3>
+                    <h3>拖曳圖片至此或點擊選取</h3>
                     <p>支援 JPG, PNG, WebP 格式</p>
                     <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp" hidden>
-                    <button class="btn primary" onclick="document.getElementById('file-input').click()">選擇檔案</button>
-                </div>
-            </div>
-
-            <!-- Style Selection Section -->
-            <div id="style-selection-section" class="card hidden">
-                <div style="text-align: center; padding: 2rem;">
-                    <h3 style="margin-bottom: 2rem; font-size: 1.5rem; color: var(--text-primary);">請選擇您所管理的網站樣式：</h3>
-                    <div class="style-category-buttons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                        <button class="btn primary style-category-btn" data-style="style1">樣式一</button>
-                        <button class="btn primary style-category-btn" data-style="style2">樣式二</button>
-                        <button class="btn primary style-category-btn" data-style="style3">樣式三</button>
-                        <button class="btn primary style-category-btn" data-style="style4">樣式四</button>
-                        <button class="btn primary style-category-btn" data-style="style5">樣式五</button>
-                    </div>
-                    <button id="back-to-upload-btn" class="btn text-btn" style="margin-top: 3rem;">⟵ 返回重新上傳</button>
+                    <button class="btn primary" onclick="document.getElementById('file-input').click()">展開檔案瀏覽器</button>
                 </div>
             </div>
 
@@ -60,10 +74,11 @@
                     <!-- Sidebar Controls -->
                     <div class="controls-sidebar">
                         <h3>裁切設定</h3>
-                        
+
                         <div class="control-group">
                             <label>該網站樣式下專用版型 (點擊切換)</label>
-                            <div id="dynamic-presets" class="preset-buttons" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div id="dynamic-presets" class="preset-buttons"
+                                style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <!-- Dynamically generated by JS -->
                             </div>
                         </div>
@@ -75,7 +90,9 @@
                                 <span style="color: var(--text-secondary);">x</span>
                                 <input type="number" id="input-height" class="input-field" value="589" placeholder="寬">
                             </div>
-                            <button id="apply-size-btn" class="btn secondary full-width" style="margin-top: 0.5rem; border-color: var(--primary-color); color: var(--text-primary);">✓ 鎖定自訂尺寸</button>
+                            <button id="apply-size-btn" class="btn secondary full-width"
+                                style="margin-top: 0.5rem; border-color: var(--primary-color); color: var(--text-primary);">✓
+                                鎖定自訂尺寸</button>
                         </div>
 
                         <div class="control-group">
@@ -93,8 +110,10 @@
                         <div class="control-group">
                             <label>旋轉</label>
                             <div class="action-buttons">
-                                <button class="btn secondary action-btn" data-action="rotate-left" title="向左旋轉 90 度">↺ 左轉</button>
-                                <button class="btn secondary action-btn" data-action="rotate-right" title="向右旋轉 90 度">↻ 右轉</button>
+                                <button class="btn secondary action-btn" data-action="rotate-left" title="向左旋轉 90 度">↺
+                                    左轉</button>
+                                <button class="btn secondary action-btn" data-action="rotate-right" title="向右旋轉 90 度">↻
+                                    右轉</button>
                             </div>
                         </div>
 
@@ -105,15 +124,14 @@
                                 <button class="btn secondary action-btn" data-action="flip-vertical">↕ 垂直</button>
                             </div>
                         </div>
-                        
+
                         <div class="control-group">
                             <button class="btn secondary action-btn full-width" data-action="reset">⟲ 重設圖片</button>
                         </div>
 
                         <div class="export-group">
                             <button id="download-btn" class="btn primary full-width">下載裁切結果</button>
-                            <button id="back-to-style-btn" class="btn text-btn full-width">返回重選網站樣式</button>
-                            <button id="cancel-btn" class="btn text-btn full-width">重新上傳新圖片</button>
+                            <button id="cancel-btn" class="btn text-btn full-width">取消重新上傳</button>
                         </div>
                     </div>
                 </div>
@@ -125,4 +143,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="main.js"></script>
 </body>
+
 </html>
