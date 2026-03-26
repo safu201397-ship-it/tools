@@ -1,21 +1,72 @@
+const PRESETS = {
+    style1: [
+        { label: '橫幅 (1048*589)', width: 1048, height: 589 },
+        { label: '首頁區塊1 (339*424)', width: 339, height: 424 },
+        { label: '首頁區塊2 (432*428)', width: 432, height: 428 },
+        { label: '首頁影音區塊 (818*460)', width: 818, height: 460 },
+        { label: '圖片區塊 (234*234)', width: 234, height: 234 },
+        { label: '自訂頁面橫幅 (1905*298)', width: 1905, height: 298 }
+    ],
+    style2: [
+        { label: '橫幅 (1700*700)', width: 1700, height: 700 },
+        { label: '首頁區塊1 (527*527)', width: 527, height: 527 },
+        { label: '首頁區塊2 (375*477)', width: 375, height: 477 },
+        { label: '首頁影音區塊 (700*394)', width: 700, height: 394 },
+        { label: '圖片區塊 (350*350)', width: 350, height: 350 },
+        { label: '自訂頁面橫幅 (1905*298)', width: 1905, height: 298 }
+    ],
+    style3: [
+        { label: '橫幅 (619*516)', width: 619, height: 516 },
+        { label: '首頁區塊1 (402*302)', width: 402, height: 302 },
+        { label: '首頁區塊2 (700*449)', width: 700, height: 449 },
+        { label: '首頁影音區塊 (678*381)', width: 678, height: 381 },
+        { label: '圖片區塊 (330*330)', width: 330, height: 330 },
+        { label: '自訂頁面橫幅 (1905*298)', width: 1905, height: 298 }
+    ],
+    style4: [
+        { label: '橫幅 (1905*695)', width: 1905, height: 695 },
+        { label: '首頁區塊1 (402*302)', width: 402, height: 302 },
+        { label: '首頁區塊2-短 (380*380)', width: 380, height: 380 },
+        { label: '首頁區塊2-長 (380*790)', width: 380, height: 790 },
+        { label: '首頁影音區塊 (730*410)', width: 730, height: 410 },
+        { label: '圖片區塊 (330*330)', width: 330, height: 330 },
+        { label: '自訂頁面橫幅 (1905*298)', width: 1905, height: 298 }
+    ],
+    style5: [
+        { label: '橫幅 (1905*595)', width: 1905, height: 595 },
+        { label: '首頁區塊1 (364*373)', width: 364, height: 373 },
+        { label: '首頁區塊2 (300*250)', width: 300, height: 250 },
+        { label: '首頁影音區塊 (722*406)', width: 722, height: 406 },
+        { label: '圖片區塊 (330*330)', width: 330, height: 330 },
+        { label: '自訂頁面橫幅 (1905*298)', width: 1905, height: 298 }
+    ]
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const uploadSection = document.getElementById('upload-section');
+    const styleSelectionSection = document.getElementById('style-selection-section');
     const editorSection = document.getElementById('editor-section');
     const imageToCrop = document.getElementById('image-to-crop');
     const downloadBtn = document.getElementById('download-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+    const backToUploadBtn = document.getElementById('back-to-upload-btn');
+    const backToStyleBtn = document.getElementById('back-to-style-btn');
+    
     const ratioBtns = document.querySelectorAll('.ratio-btn');
     const actionBtns = document.querySelectorAll('.action-btn');
     const inputWidth = document.getElementById('input-width');
     const inputHeight = document.getElementById('input-height');
     const applySizeBtn = document.getElementById('apply-size-btn');
-    const presetBtns = document.querySelectorAll('.preset-btn');
+    
+    const dynamicPresets = document.getElementById('dynamic-presets');
+    const styleCategoryBtns = document.querySelectorAll('.style-category-btn');
 
     let cropper = null;
     let isFixedSize = true; // Track if we strictly format output to the input fields
+    let activeStyleCategory = 'style1'; // Defaults
     let currentFileName = 'cropped-image';
     let currentFileType = 'image/jpeg';
     
@@ -63,21 +114,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             imageToCrop.src = e.target.result;
-            showEditor();
-            initCropper();
+            showStyleSelection();
         };
         reader.readAsDataURL(file);
     }
 
     // ----- UI Transitions -----
 
-    function showEditor() {
+    function showStyleSelection() {
         uploadSection.classList.remove('active');
+        editorSection.classList.remove('active');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        setTimeout(() => {
+            styleSelectionSection.classList.add('active');
+        }, 300);
+    }
+
+    function showEditor() {
+        styleSelectionSection.classList.remove('active');
+        
+        // Render preset buttons based on activeStyleCategory
+        dynamicPresets.innerHTML = '';
+        const presets = PRESETS[activeStyleCategory] || [];
+        presets.forEach((p, index) => {
+            const btn = document.createElement('button');
+            btn.className = `btn secondary preset-btn ${index === 0 ? 'active' : ''}`;
+            btn.dataset.width = p.width;
+            btn.dataset.height = p.height;
+            btn.textContent = p.label;
+            dynamicPresets.appendChild(btn);
+        });
+
+        // Set initial width/height inputs to the first preset
+        if (presets.length > 0) {
+            inputWidth.value = presets[0].width;
+            inputHeight.value = presets[0].height;
+        }
+
         // Small delay to allow CSS transitions
         setTimeout(() => {
             editorSection.classList.add('active');
-            // Ensure cropper gets correct dimensions when unhidden
-            if (cropper) cropper.resize();
+            initCropper();
         }, 300);
     }
 
@@ -90,10 +170,19 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInput.value = ''; // clear input
         
         editorSection.classList.remove('active');
+        styleSelectionSection.classList.remove('active');
         setTimeout(() => {
             uploadSection.classList.add('active');
         }, 300);
     }
+    
+    // Wire up category buttons
+    styleCategoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeStyleCategory = btn.dataset.style;
+            showEditor();
+        });
+    });
 
     // ----- Cropper Initialization -----
 
@@ -126,8 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Reset ratio buttons UI
         ratioBtns.forEach(btn => btn.classList.remove('active'));
-        presetBtns.forEach(btn => btn.classList.remove('active'));
-        if (presetBtns.length > 0) presetBtns[0].classList.add('active');
+        // Dynamic presets already have the 1st active by default during generation
         isFixedSize = true;
     }
 
@@ -140,36 +228,39 @@ document.addEventListener('DOMContentLoaded', () => {
             cropper.setAspectRatio(w / h);
             maximizeCropBox();
             ratioBtns.forEach(btn => btn.classList.remove('active'));
-            presetBtns.forEach(btn => btn.classList.remove('active'));
+            dynamicPresets.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
             isFixedSize = true;
         }
     });
 
-    presetBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const w = parseInt(btn.dataset.width);
-            const h = parseInt(btn.dataset.height);
-            
-            inputWidth.value = w;
-            inputHeight.value = h;
-            
-            presetBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            ratioBtns.forEach(b => b.classList.remove('active'));
-            
-            if (cropper) {
-                cropper.setAspectRatio(w / h);
-                maximizeCropBox();
-                isFixedSize = true;
-            }
-        });
+    dynamicPresets.addEventListener('click', (e) => {
+        const btn = e.target.closest('.preset-btn');
+        if (!btn) return;
+        
+        const w = parseInt(btn.dataset.width);
+        const h = parseInt(btn.dataset.height);
+        
+        inputWidth.value = w;
+        inputHeight.value = h;
+        
+        const allBtns = dynamicPresets.querySelectorAll('.preset-btn');
+        allBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        ratioBtns.forEach(b => b.classList.remove('active'));
+        
+        if (cropper) {
+            cropper.setAspectRatio(w / h);
+            maximizeCropBox();
+            isFixedSize = true;
+        }
     });
 
     ratioBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             // Update active state
             ratioBtns.forEach(b => b.classList.remove('active'));
-            presetBtns.forEach(b => b.classList.remove('active'));
+            dynamicPresets.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             isFixedSize = false; // Using preset ratios implies we don't strictly force the pixel size from inputs
 
@@ -216,8 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         ratioBtns.forEach(btn => btn.classList.remove('active'));
                         
                         // Try to highlight matching preset if it exists
-                        presetBtns.forEach(btn => btn.classList.remove('active'));
-                        const matchPreset = Array.from(presetBtns).find(b => parseInt(b.dataset.width) === targetW && parseInt(b.dataset.height) === targetH);
+                        const allBtns = dynamicPresets.querySelectorAll('.preset-btn');
+                        allBtns.forEach(btn => btn.classList.remove('active'));
+                        const matchPreset = Array.from(allBtns).find(b => parseInt(b.dataset.width) === targetW && parseInt(b.dataset.height) === targetH);
                         if (matchPreset) matchPreset.classList.add('active');
                         
                         isFixedSize = true;
@@ -230,6 +322,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----- Actions -----
 
     cancelBtn.addEventListener('click', showUpload);
+    backToUploadBtn.addEventListener('click', showUpload);
+    backToStyleBtn.addEventListener('click', showStyleSelection);
 
     downloadBtn.addEventListener('click', () => {
         if (!cropper) return;
