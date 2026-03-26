@@ -74,6 +74,10 @@
                     <!-- Sidebar Controls -->
                     <div class="controls-sidebar">
                         <h3>裁切設定</h3>
+                        
+                        <div id="resolution-warning" style="display: none; color: #ef4444; font-size: 0.875rem; margin-bottom: 1rem; background: rgba(239, 68, 68, 0.1); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.3); line-height: 1.4;">
+                            <!-- Triggered by JS -->
+                        </div>
 
                         <div class="control-group">
                             <label>該網站樣式下專用版型 (點擊切換)</label>
@@ -129,8 +133,12 @@
                             <button class="btn secondary action-btn full-width" data-action="reset">⟲ 重設圖片</button>
                         </div>
 
-                        <div class="export-group">
-                            <button id="download-btn" class="btn primary full-width">下載裁切結果</button>
+                        <div class="export-group" style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1rem;">
+                            <div id="file-size-estimate" style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                                容量預估計算中...
+                            </div>
+                            <button id="download-webp-btn" class="btn primary full-width" style="margin-bottom: 0.5rem;">下載 WebP 格式</button>
+                            <button id="download-jpg-btn" class="btn secondary full-width" style="margin-bottom: 0.5rem;">下載 JPG 格式</button>
                             <button id="cancel-btn" class="btn text-btn full-width">取消重新上傳</button>
                         </div>
                     </div>

@@ -50,8 +50,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const styleSelectionSection = document.getElementById('style-selection-section');
     const editorSection = document.getElementById('editor-section');
     const imageToCrop = document.getElementById('image-to-crop');
-    const downloadBtn = document.getElementById('download-btn');
+    const downloadWebpBtn = document.getElementById('download-webp-btn');
+    const downloadJpgBtn = document.getElementById('download-jpg-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+    const fileSizeEstimate = document.getElementById('file-size-estimate');
     
     const ratioBtns = document.querySelectorAll('.ratio-btn');
     const actionBtns = document.querySelectorAll('.action-btn');
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dynamicPresets = document.getElementById('dynamic-presets');
     const styleCategoryBtns = document.querySelectorAll('.style-category-btn');
     const currentStyleLabel = document.getElementById('current-style-label');
+    const resolutionWarning = document.getElementById('resolution-warning');
 
     let cropper = null;
     let isFixedSize = true; // Track if we strictly format output to the input fields
@@ -211,6 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cropBoxMovable: true,
             cropBoxResizable: true,
             toggleDragModeOnDblclick: false,
+            crop: () => {
+                triggerSizeEstimate();
+            }
         });
 
         // Reset ratio buttons UI
@@ -326,15 +332,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('back-to-style-btn').addEventListener('click', showStyleSelection);
     }
 
-    downloadBtn.addEventListener('click', () => {
+    function downloadCroppedImage(format, quality, ext) {
         if (!cropper) return;
         
         let canvasOptions = {
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high',
+            fillColor: '#fff' // 白底，防止去背圖片在 JPG 變黑
         };
 
-        // If locked to a specific custom pixel size, exact bounds should be rendered
         if (isFixedSize) {
             const w = parseInt(inputWidth.value);
             const h = parseInt(inputHeight.value);
@@ -344,33 +350,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Get cropped canvas
         const canvas = cropper.getCroppedCanvas(canvasOptions);
 
         if (canvas) {
-            // Convert to blob and download
             canvas.toBlob((blob) => {
                 if (!blob) return;
                 
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                // 強制匯出為 webp 格式
-                a.download = `${currentFileName}.webp`;
+                a.download = `${currentFileName}.${ext}`;
                 document.body.appendChild(a);
                 a.click();
                 
-                // Cleanup
                 setTimeout(() => {
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                    
-                    // Trigger return to upload screen automatically after 800ms
                     setTimeout(showUpload, 800);
                 }, 100);
-            }, 'image/webp', 0.95); // High Quality WebP
+            }, format, quality);
         }
-    });
+    }
+
+    downloadWebpBtn.addEventListener('click', () => downloadCroppedImage('image/webp', 0.9, 'webp'));
+    downloadJpgBtn.addEventListener('click', () => downloadCroppedImage('image/jpeg', 0.9, 'jpg'));
 
     // ----- Helpers -----
     function maximizeCropBox() {
@@ -382,5 +385,64 @@ document.addEventListener('DOMContentLoaded', () => {
             width: canvasData.width,
             height: canvasData.height
         });
+        checkResolutionWarning();
+    }
+
+    function checkResolutionWarning() {
+        if (!cropper || !isFixedSize || !resolutionWarning) return;
+        const imgData = cropper.getImageData();
+        const targetW = parseInt(inputWidth.value) || 0;
+        const targetH = parseInt(inputHeight.value) || 0;
+        
+        if (targetW > 0 && targetH > 0 && (imgData.naturalWidth < targetW || imgData.naturalHeight < targetH)) {
+            resolutionWarning.style.display = 'block';
+            resolutionWarning.innerHTML = `⚠ <strong>解析度過低警告</strong><br>原圖解析度 (${Math.round(imgData.naturalWidth)}x${Math.round(imgData.naturalHeight)}) 小於左側目標尺寸 (${targetW}x${targetH})，強行產出將會使圖片被強制放大而產生模糊！建議使用更大張的原始圖檔。`;
+        } else {
+            resolutionWarning.style.display = 'none';
+        }
+    }
+
+    let estimateTimeout = null;
+    function triggerSizeEstimate() {
+        if (!cropper || !fileSizeEstimate) return;
+        if (estimateTimeout) clearTimeout(estimateTimeout);
+        fileSizeEstimate.innerHTML = '預估容量計算中...';
+        estimateTimeout = setTimeout(() => {
+            calculateSizeEstimate();
+        }, 500); // 500ms debounce
+    }
+
+    function formatBytes(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        else return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+
+    function calculateSizeEstimate() {
+        if (!cropper) return;
+        let canvasOptions = {
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+            fillColor: '#fff'
+        };
+        if (isFixedSize) {
+            const w = parseInt(inputWidth.value);
+            const h = parseInt(inputHeight.value);
+            if (w > 0 && h > 0) {
+                canvasOptions.width = w;
+                canvasOptions.height = h;
+            }
+        }
+        
+        const canvas = cropper.getCroppedCanvas(canvasOptions);
+        if (!canvas) return;
+
+        canvas.toBlob((webpBlob) => {
+            canvas.toBlob((jpgBlob) => {
+                if (fileSizeEstimate && webpBlob && jpgBlob) {
+                    fileSizeEstimate.innerHTML = `預估容量: <strong style="color:var(--primary-color)">WebP</strong> ~${formatBytes(webpBlob.size)} | <strong style="color:var(--primary-color)">JPG</strong> ~${formatBytes(jpgBlob.size)}`;
+                }
+            }, 'image/jpeg', 0.9);
+        }, 'image/webp', 0.9);
     }
 });
